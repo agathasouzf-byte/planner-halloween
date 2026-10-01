@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner — Festa de Halloween</title>
+<style>
+:root{
+  --bg:#0c0b10; --panel:#15131b; --panel2:#1c1923; --text:#f4f1f7;
+  --muted:#a9a2b2; --line:#2b2634; --accent:#ff7a18; --accent2:#8f5cff;
+  --ok:#5dd39e; --danger:#ff6464; --shadow:0 14px 40px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top right,#281b2e 0,#0c0b10 42%);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit} button{cursor:pointer}
+.app{display:flex;min-height:100vh}.side{width:245px;background:rgba(12,11,16,.9);border-right:1px solid var(--line);padding:24px 16px;position:sticky;top:0;height:100vh}
+.logo{padding:4px 10px 24px}.logo small{color:var(--muted);display:block}.logo strong{font-size:21px;letter-spacing:.5px}
+.nav button{width:100%;background:none;border:0;color:var(--muted);padding:12px 13px;text-align:left;border-radius:12px;margin:2px 0}.nav button:hover,.nav button.active{background:var(--panel2);color:#fff}
+.main{flex:1;max-width:1300px;margin:auto;padding:34px 38px 60px}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:28px}
+h1{font-size:34px;line-height:1.1;margin:0 0 6px}.sub{color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:11px;padding:9px 13px}.btn.primary{background:var(--accent);border-color:var(--accent);color:#17110c;font-weight:700}.btn.danger{color:#ff9b9b}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:rgba(21,19,27,.88);border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:var(--shadow)}.stat .num{font-size:27px;font-weight:750}.stat .label{color:var(--muted);font-size:13px}.progress{height:7px;background:#2a2530;border-radius:10px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#ffb25e);width:0}
+.section{margin-top:25px}.section h2{font-size:20px;margin:0 0 13px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.category{min-height:150px}.category h3{margin:8px 0 5px;font-size:18px}.category p{color:var(--muted);margin:0}.tag{display:inline-flex;padding:4px 8px;border-radius:99px;background:#27212f;color:#d9d0e5;font-size:12px}
+.page{display:none}.page.active{display:block}.two{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.list{display:grid;gap:8px}.item{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);padding:11px 12px;border-radius:12px;border:1px solid transparent}.item.done{opacity:.55}.item.done .itemtext{text-decoration:line-through}.item input[type=checkbox]{margin-top:4px;accent-color:var(--accent)}.itemtext{flex:1}.meta{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+.area{border:1px solid var(--line);border-radius:15px;padding:15px;background:var(--panel)}.area h3{margin:0 0 10px}.area ul{padding:0;margin:0;list-style:none}.area li{padding:7px 0;border-bottom:1px solid var(--line);color:#d9d3df}.area li:last-child{border-bottom:0}
+.form{display:grid;gap:9px}.form input,.form textarea,.form select{background:#0f0e14;border:1px solid var(--line);color:#fff;border-radius:10px;padding:10px;width:100%}.form textarea{min-height:90px;resize:vertical}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:left}.table th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.empty{color:var(--muted);padding:25px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+.kicker{color:var(--accent);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.12em}
+@media(max-width:900px){.side{width:190px}.grid{grid-template-columns:repeat(2,1fr)}.cards,.two{grid-template-columns:1fr}.main{padding:25px 20px}}
+@media(max-width:650px){.app{display:block}.side{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--line)}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;width:auto}.grid{grid-template-columns:1fr}.top{display:block}.actions{margin-top:15px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="logo"><small>PLANNER</small><strong>🎃 Festa de Halloween</strong><div id="syncStatus" style="margin-top:10px;font-size:12px;color:#a9a2b2">⏳ Conectando...</div></div>
+  <nav class="nav" id="nav"></nav>
+</aside>
+<main class="main">
+  <div id="dashboard" class="page active">
+    <div class="top"><div><div class="kicker" id="eventKicker">organização da festa</div><h1 id="eventTitle">Halloween</h1><div class="sub" id="eventSubtitle">Um painel para acompanhar tudo sem precisar abrir uma planilha.</div></div><div class="actions"><button class="btn" onclick="resetAll()">Restaurar modelo</button><button class="btn" onclick="editEvent()">✎ Editar festa</button><button class="btn primary" onclick="exportData()">Exportar backup</button></div></div>
+    <div class="grid" id="stats"></div>
+    <div class="section"><h2>Áreas principais</h2><div class="cards" id="categories"></div></div>
+    <div class="section two"><div class="card"><h2>Próximas tarefas</h2><div class="list" id="nextTasks"></div></div><div class="card"><h2>Checklist do dia</h2><div class="list" id="dayTasks"></div></div></div>
+  </div>
+
+  <div id="decoracao" class="page">
+    <div class="top"><div><div class="kicker">visual da festa</div><h1>Decoração</h1><div class="sub">Organizada nas 3 partes do salão.</div></div></div>
+    <div class="cards" id="areas"></div>
+  </div>
+
+  <div id="comidas" class="page">
+    <div class="top"><div><div class="kicker">menu</div><h1>Comidas</h1><div class="sub">O que comprar, preparar e deixar pronto.</div></div></div>
+    <div class="two"><div class="card"><h2>Menu</h2><div class="list" id="foodList"></div></div><div class="card"><h2>Adicionar comida</h2><form class="form" onsubmit="addGeneric(event,'foods')"><input name="name" placeholder="Ex.: mini sanduíches" required><input name="qty" placeholder="Quantidade / rendimento"><select name="status"><option value="pending">Pendente</option><option value="buy">Comprar pronto</option><option value="make">Fazer em casa</option></select><button class="btn primary">Adicionar</button></form></div></div>
+  </div>
+
+  <div id="bebidas" class="page">
+    <div class="top"><div><div class="kicker">bar</div><h1>Bebidas & Drinks</h1><div class="sub">Drinks temáticos, bebidas sem álcool, gelo e materiais.</div></div></div>
+    <div class="cards" id="drinkCards"></div>
+    <div class="section two"><div class="card"><h2>Bar</h2><div class="list" id="barList"></div></div><div class="card"><h2>Adicionar drink</h2><form class="form" onsubmit="addDrink(event)"><input name="name" placeholder="Nome do drink" required><input name="ingredients" placeholder="Ingredientes principais"><input name="yield" placeholder="Rendimento"><button class="btn primary">Adicionar</button></form></div></div>
+  </div>
+
+  <div id="compras" class="page">
+    <div class="top"><div><div class="kicker">logística</div><h1>Lista de compras</h1><div class="sub">Marque o que já foi comprado.</div></div></div>
+    <div class="two"><div class="card"><div class="list" id="shoppingList"></div></div><div class="card"><h2>Adicionar item</h2><form class="form" onsubmit="addShopping(event)"><input name="name" placeholder="Item" required><input name="category" placeholder="Categoria: mercado, decoração, bar..."><input name="qty" placeholder="Quantidade"><input name="price" type="number" step="0.01" placeholder="Preço estimado (R$)"><button class="btn primary">Adicionar</button></form></div></div>
+  </div>
+
+  <div id="orcamento" class="page">
+    <div class="top"><div><div class="kicker">dinheiro da festa</div><h1>Orçamento</h1><div class="sub">Controle o que pretende gastar, o que já pagou e quanto foi arrecadado.</div></div></div>
+    <div class="grid" id="budgetStats"></div>
+    <div class="two section"><div class="card"><h2>Gastos</h2><div class="list" id="expenseList"></div></div><div class="card"><h2>Adicionar gasto</h2><form class="form" onsubmit="addExpense(event)"><input name="name" placeholder="O que foi / será comprado" required><input name="category" placeholder="Categoria: decoração, comida, bebida..." required><input name="planned" type="number" step="0.01" placeholder="Valor previsto (R$)"><input name="paid" type="number" step="0.01" placeholder="Valor pago (R$)"><label><input name="done" type="checkbox"> já foi pago</label><button class="btn primary">Adicionar gasto</button></form></div></div>
+    <div class="two section"><div class="card"><h2>Arrecadações</h2><div class="list" id="incomeList"></div></div><div class="card"><h2>Adicionar arrecadação</h2><form class="form" onsubmit="addIncome(event)"><input name="name" placeholder="Nome / origem" required><input name="amount" type="number" step="0.01" placeholder="Valor (R$)" required><input name="note" placeholder="Observação"><button class="btn primary">Adicionar</button></form></div></div>
+  </div>
+
+  <div id="convidados" class="page">
+    <div class="top"><div><div class="kicker">lista de convidados</div><h1>Confirmação de presença</h1><div class="sub">Acompanhe convite enviado, confirmação e pagamento de cada pessoa.</div></div></div>
+    <div class="grid" id="guestStats"></div>
+    <div class="card section"><h2>Convidados</h2><div style="overflow:auto"><table class="table"><thead><tr><th>Nome</th><th>Convite</th><th>Confirmou</th><th>Pagou</th><th>Valor</th><th>Observação</th><th></th></tr></thead><tbody id="guestTable"></tbody></table></div></div>
+    <div class="card section"><h2>Adicionar convidado</h2><form class="form" onsubmit="addGuest(event)"><input name="name" placeholder="Nome do convidado" required><input name="amount" type="number" step="0.01" placeholder="Valor esperado (R$)"><input name="note" placeholder="Observação"><button class="btn primary">Adicionar convidado</button></form></div>
+  </div>
+
+  <div id="diy" class="page">
+    <div class="top"><div><div class="kicker">feito à mão</div><h1>DIY</h1><div class="sub">Projetos para produzir em casa, com materiais e etapas.</div></div></div>
+    <div class="cards" id="diyCards"></div>
+    <div class="section card"><h2>Adicionar projeto</h2><form class="form" onsubmit="addDIY(event)"><input name="name" placeholder="Ex.: cartazes de filmes" required><input name="materials" placeholder="Materiais"><input name="deadline" placeholder="Prazo"><button class="btn primary">Adicionar projeto</button></form></div>
+  </div>
+
+  <div id="jogos" class="page">
+    <div class="top"><div><div class="kicker">entretenimento</div><h1>Jogos & Atividades</h1><div class="sub">Controle materiais, regras e preparação.</div></div></div>
+    <div class="cards" id="gameCards"></div>
+    <div class="section card"><h2>Adicionar jogo</h2><form class="form" onsubmit="addGame(event)"><input name="name" placeholder="Nome do jogo" required><input name="materials" placeholder="Materiais"><textarea name="rules" placeholder="Como funciona?"></textarea><button class="btn primary">Adicionar jogo</button></form></div>
+  </div>
+
+  <div id="cronograma" class="page">
+    <div class="top"><div><div class="kicker">linha do tempo</div><h1>Cronograma</h1><div class="sub">Distribua as tarefas para não concentrar tudo na véspera.</div></div></div>
+    <div class="card"><div class="list" id="scheduleList"></div></div>
+  </div>
+</main>
+</div>
+<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCG1IIItI7c9zNOkyWP4p10c2-SuJRFdDR0",
+  authDomain: "halloween-f4c6a.firebaseapp.com",
+  projectId: "halloween-f4c6a",
+  storageBucket: "halloween-f4c6a.firebasestorage.app",
+  messagingSenderId: "817986672125",
+  appId: "1:817986672125:web:37c492c0a08d965123b594"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const PLANNER_DOC = db.collection('planners').doc('halloween-2026');
+let firebaseReady = false;
+let remoteApplying = false;
+let saveTimer = null;
+
+const KEY='halloweenPlannerV1';
+const seed={event:{kicker:'organização da festa',title:'Halloween',subtitle:'Um painel para acompanhar tudo sem precisar abrir uma planilha.'},
+ areas:[
+  {name:'Área 1 — Entrada / Cinema', concept:'Festival de terror / chegada dos convidados', items:['Painel ou parede de cartazes de filmes','Lambe-lambe / pôsteres','Placa de entrada','Iluminação temática','Adereços para fotos']},
+  {name:'Área 2 — Salão principal', concept:'Cenário principal da festa', items:['Elemento central da decoração','Mesa de comidas','Elementos pretos/laranja/vermelhos','Velas ou iluminação cenográfica','Detalhes inspirados em filmes de terror']},
+  {name:'Área 3 — Bar / Jogos', concept:'Cantinho dos drinks e atividades', items:['Decoração do bar','Cardápio dos drinks','Copos e acessórios','Mesa/área dos jogos','Adereços para os convidados']}
+ ],
+ foods:[
+  {name:'Entradas e petiscos',qty:'Definir',status:'pending',done:false},
+  {name:'Comida principal',qty:'Definir',status:'pending',done:false},
+  {name:'Doces / sobremesas temáticas',qty:'Definir',status:'pending',done:false},
+  {name:'Opções sem carne',qty:'Definir',status:'pending',done:false},
+  {name:'Comida para a madrugada',qty:'Definir',status:'pending',done:false}
+ ],
+ drinks:[
+  {name:'Drink 1 — definir',ingredients:'',yield:'',done:false},
+  {name:'Drink 2 — definir',ingredients:'',yield:'',done:false},
+  {name:'Drink 3 — definir',ingredients:'',yield:'',done:false},
+  {name:'Drink 4 — definir',ingredients:'',yield:'',done:false},
+  {name:'Drink 5 — definir',ingredients:'',yield:'',done:false},
+  {name:'Drink 6 — definir',ingredients:'',yield:'',done:false}
+ ],
+ bar:[
+  {name:'Gelo',done:false},{name:'Água',done:false},{name:'Bebidas sem álcool',done:false},
+  {name:'Copos',done:false},{name:'Guardanapos',done:false},{name:'Canudos / mexedores',done:false}
+ ],
+ shopping:[
+  {name:'Materiais de decoração',category:'Decoração',qty:'',price:'',done:false},
+  {name:'Materiais dos DIYs',category:'DIY',qty:'',price:'',done:false},
+  {name:'Ingredientes das comidas',category:'Mercado',qty:'',price:'',done:false},
+  {name:'Ingredientes dos drinks',category:'Bar',qty:'',price:'',done:false},
+  {name:'Gelo',category:'Bar',qty:'',price:'',done:false},
+  {name:'Descartáveis',category:'Festa',qty:'',price:'',done:false}
+ ],
+ diy:[
+  {name:'Parede de cartazes / lambe-lambe',materials:'Papel, impressões, fita/cola, tesoura',deadline:'Definir',done:false},
+  {name:'Painel / photo wall',materials:'Definir materiais',deadline:'Definir',done:false},
+  {name:'Identidade dos drinks',materials:'Papel, impressão, suportes',deadline:'Definir',done:false},
+  {name:'Adereços para fotos',materials:'Papel, palitos, impressão',deadline:'Definir',done:false}
+ ],
+ games:[
+  {name:'Jogo 1 — definir',materials:'',rules:'',done:false},
+  {name:'Jogo 2 — definir',materials:'',rules:'',done:false},
+  {name:'Jogo 3 — definir',materials:'',rules:'',done:false},
+  {name:'Jogo 4 — definir',materials:'',rules:'',done:false}
+ ],
+ budget:{target:0, expenses:[
+  {name:'Ex.: decoração',category:'Decoração',planned:0,paid:0,done:false},
+  {name:'Ex.: comidas',category:'Comidas',planned:0,paid:0,done:false},
+  {name:'Ex.: bebidas',category:'Bebidas',planned:0,paid:0,done:false}
+ ], income:[]},
+ guests:[],
+ schedule:[
+  {name:'Definir layout final das 3 áreas',when:'3–4 semanas antes',done:false},
+  {name:'Fechar cardápio e quantidades',when:'2–3 semanas antes',done:false},
+  {name:'Fechar drinks e lista de ingredientes',when:'2–3 semanas antes',done:false},
+  {name:'Comprar materiais dos DIYs',when:'2 semanas antes',done:false},
+  {name:'Produzir DIYs maiores',when:'1–2 semanas antes',done:false},
+  {name:'Montar jogos e imprimir materiais',when:'1 semana antes',done:false},
+  {name:'Compra principal de mercado e bar',when:'2–3 dias antes',done:false},
+  {name:'Pré-preparo das comidas',when:'1 dia antes',done:false},
+  {name:'Separar caixas por área do salão',when:'1 dia antes',done:false},
+  {name:'Montagem final + gelo + bebidas',when:'No dia',done:false}
+ ]
+};
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||JSON.parse(JSON.stringify(seed)); if(!data.event)data.event=JSON.parse(JSON.stringify(seed.event)); if(!data.budget)data.budget={target:0,expenses:[],income:[]}; if(!data.guests)data.guests=[];
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  if(remoteApplying || !firebaseReady) return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try {
+      await PLANNER_DOC.set({planner:data, updatedAt:firebase.firestore.FieldValue.serverTimestamp()}, {merge:true});
+      setSyncStatus('☁️ Sincronizado');
+    } catch(e){ console.error(e); setSyncStatus('⚠️ Erro ao sincronizar'); }
+  },250);
+}
+function setSyncStatus(msg){ const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+async function initFirebase(){
+  try {
+    await auth.signInAnonymously();
+    firebaseReady=true;
+    setSyncStatus('☁️ Conectado');
+    PLANNER_DOC.onSnapshot(snap=>{
+      if(!snap.exists) { save(); return; }
+      const remote=snap.data().planner;
+      if(remote){ remoteApplying=true; data=remote; localStorage.setItem(KEY,JSON.stringify(data)); render(); remoteApplying=false; setSyncStatus('☁️ Atualizado'); }
+    }, err=>{ console.error(err); setSyncStatus('⚠️ Verifique as regras do Firestore'); });
+  } catch(e){ console.error(e); setSyncStatus('⚠️ Offline — usando cópia local'); }
+}
+
+const allTasks=()=>[
+ ...data.foods,...data.drinks,...data.bar,...data.shopping,...data.diy,...data.games,...data.schedule,
+ ...data.areas.flatMap(a=>a.items.map(name=>({name,done:false})))
+];
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toggle(arr,i){arr[i].done=!arr[i].done;save();render()}
+function taskItem(arr,i,meta=''){
+ const x=arr[i]; return `<label class="item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="toggle(window.__refs['${arr===data.foods?'foods':arr===data.drinks?'drinks':arr===data.bar?'bar':arr===data.shopping?'shopping':arr===data.diy?'diy':arr===data.games?'games':'schedule'}'],${i})"><span class="itemtext">${esc(x.name)}<span class="meta">${esc(meta || x.category || x.when || x.qty || '')}</span></span></label>`
+}
+window.__refs={foods:data.foods,drinks:data.drinks,bar:data.bar,shopping:data.shopping,diy:data.diy,games:data.games,schedule:data.schedule};
+function editEvent(){ const k=prompt('Título pequeno',data.event.kicker); if(k===null)return; const t=prompt('Nome da festa',data.event.title); if(t===null)return; const sub=prompt('Descrição',data.event.subtitle); if(sub===null)return; data.event={kicker:k,title:t,subtitle:sub}; save(); render(); }
+function editArea(ai){ const a=data.areas[ai]; const n=prompt('Nome da área',a.name); if(n===null)return; const c=prompt('Descrição/conceito',a.concept); if(c===null)return; const raw=prompt('Itens da área (um por linha)',a.items.join('\n')); if(raw===null)return; a.name=n;a.concept=c;a.items=raw.split('\n').map(x=>x.trim()).filter(Boolean);save();render();}
+function editGeneric(key,i){ const x=data[key][i]; const n=prompt('Nome',x.name); if(n===null)return; x.name=n; if('qty' in x){const q=prompt('Quantidade / rendimento',x.qty||'');if(q!==null)x.qty=q} if('category' in x){const c=prompt('Categoria',x.category||'');if(c!==null)x.category=c} if('when' in x){const w=prompt('Quando',x.when||'');if(w!==null)x.when=w} if('materials' in x){const m=prompt('Materiais',x.materials||'');if(m!==null)x.materials=m} if('deadline' in x){const d=prompt('Prazo',x.deadline||'');if(d!==null)x.deadline=d} if('ingredients' in x){const m=prompt('Ingredientes principais',x.ingredients||'');if(m!==null)x.ingredients=m} if('yield' in x){const y=prompt('Rendimento',x.yield||'');if(y!==null)x.yield=y} if('rules' in x){const r=prompt('Como funciona?',x.rules||'');if(r!==null)x.rules=r} save();render();}
+function render(){
+ window.__refs={foods:data.foods,drinks:data.drinks,bar:data.bar,shopping:data.shopping,diy:data.diy,games:data.games,schedule:data.schedule};
+ nav.innerHTML=[['dashboard','Visão geral'],['decoracao','🎃 Decoração'],['comidas','🍴 Comidas'],['bebidas','🍸 Bebidas & Drinks'],['compras','🛍️ Compras'],['orcamento','💰 Orçamento'],['convidados','👥 Convidados'],['diy','✂️ DIY'],['jogos','🎲 Jogos'],['cronograma','📅 Cronograma']].map(([id,n])=>`<button onclick="show('${id}')" data-page="${id}">${n}</button>`).join('');
+ const tasks=allTasks(), done=tasks.filter(x=>x.done).length, pct=tasks.length?Math.round(done/tasks.length*100):0;
+ stats.innerHTML=[
+  ['📋',tasks.length,'tarefas totais'],['✅',done,'concluídas'],['⏳',tasks.length-done,'pendentes'],['◉',pct+'%','progresso geral']
+ ].map(x=>`<div class="card stat"><div>${x[0]}</div><div class="num">${x[1]}</div><div class="label">${x[2]}</div><div class="progress"><i style="width:${pct}%"></i></div></div>`).join('');
+ const cats=[['decoracao','🎃','Decoração','3 áreas do salão'],['comidas','🍴','Comidas','menu e preparo'],['bebidas','🍸','Bebidas & Drinks','bar e drinks'],['compras','🛍️','Compras','lista geral'],['diy','✂️','DIY','produção em casa'],['jogos','🎲','Jogos','atividades da festa']];
+ categories.innerHTML=cats.map(c=>`<button class="card category" onclick="show('${c[0]}')" style="text-align:left;color:inherit;cursor:pointer"><span class="tag">${c[1]}</span><h3>${c[2]}</h3><p>${c[3]}</p></button>`).join('');
+ nextTasks.innerHTML=tasks.filter(x=>!x.done).slice(0,6).map(x=>`<div class="item"><span>○</span><span class="itemtext">${esc(x.name)}</span></div>`).join('')||'<div class="empty">Tudo concluído.</div>';
+ dayTasks.innerHTML=data.schedule.slice(-4).map((x,i)=>`<label class="item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="toggle(data.schedule,${data.schedule.length-4+i})"><span class="itemtext">${esc(x.name)}<span class="meta">${esc(x.when)}</span></span></label>`).join('');
+ areas.innerHTML=data.areas.map((a,ai)=>`<div class="area"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(a.name)}</h3><button class="btn" onclick="editArea(${ai})">✎</button></div><p class="sub">${esc(a.concept)}</p><ul>${a.items.map(x=>`<li>○ ${esc(x)}</li>`).join('')}</ul></div>`).join('');
+ foodList.innerHTML=data.foods.map((x,i)=>taskItem(data.foods,i,x.status==='make'?'Fazer em casa':x.status==='buy'?'Comprar pronto':x.qty)+`<button class="btn" onclick="editGeneric('foods',${i})">✎ editar</button>`).join('');
+ drinkCards.innerHTML=data.drinks.map((x,i)=>`<div class="card"><span class="tag">DRINK</span><h3>${esc(x.name)}</h3><p class="sub">${esc(x.ingredients||'Ingredientes a definir')}</p><p class="meta">Rendimento: ${esc(x.yield||'definir')}</p><label><input type="checkbox" ${x.done?'checked':''} onchange="toggle(data.drinks,${i})"> preparado/testado</label></div>`).join('');
+ barList.innerHTML=data.bar.map((x,i)=>taskItem(data.bar,i)+`<button class="btn" onclick="editGeneric('bar',${i})">✎ editar</button>`).join('');
+ shoppingList.innerHTML=data.shopping.map((x,i)=>taskItem(data.shopping,i,`${x.category||'Outros'} · ${x.qty||'qtd. a definir'}${x.price?' · R$ '+Number(x.price).toFixed(2):''}`)+`<button class="btn" onclick="editGeneric('shopping',${i})">✎ editar</button>`).join('');
+ diyCards.innerHTML=data.diy.map((x,i)=>`<div class="card"><div style="display:flex;justify-content:space-between"><span class="tag">${x.done?'CONCLUÍDO':'PENDENTE'}</span><button class="btn" onclick="editGeneric('diy',${i})">✎</button></div><h3>${esc(x.name)}</h3><p><b>Materiais:</b> ${esc(x.materials||'Definir')}</p><p class="meta">Prazo: ${esc(x.deadline||'Definir')}</p><label><input type="checkbox" ${x.done?'checked':''} onchange="toggle(data.diy,${i})"> concluído</label></div>`).join('');
+ gameCards.innerHTML=data.games.map((x,i)=>`<div class="card"><div style="display:flex;justify-content:space-between"><span class="tag">${x.done?'PRONTO':'A PREPARAR'}</span><button class="btn" onclick="editGeneric('games',${i})">✎</button></div><h3>${esc(x.name)}</h3><p><b>Materiais:</b> ${esc(x.materials||'Definir')}</p><p class="sub">${esc(x.rules||'Regras a definir')}</p><label><input type="checkbox" ${x.done?'checked':''} onchange="toggle(data.games,${i})"> pronto</label></div>`).join('');
+ const expenses=data.budget?.expenses||[], income=data.budget?.income||[], guests=data.guests||[];
+ const planned=expenses.reduce((a,x)=>a+Number(x.planned||0),0), spent=expenses.reduce((a,x)=>a+Number(x.paid||0),0), raised=income.reduce((a,x)=>a+Number(x.amount||0),0), balance=raised-spent;
+ budgetStats.innerHTML=[['💰','R$ '+spent.toFixed(2),'gasto realizado'],['📋','R$ '+planned.toFixed(2),'gasto previsto'],['🎟️','R$ '+raised.toFixed(2),'arrecadado'],['◉','R$ '+balance.toFixed(2),'saldo']].map(x=>`<div class="card stat"><div>${x[0]}</div><div class="num">${x[1]}</div><div class="label">${x[2]}</div></div>`).join('');
+ expenseList.innerHTML=expenses.map((x,i)=>`<div class="item ${x.done?'done':''}"><span class="itemtext"><b>${esc(x.name)}</b><span class="meta">${esc(x.category)} · previsto R$ ${Number(x.planned||0).toFixed(2)} · pago R$ ${Number(x.paid||0).toFixed(2)}</span></span><button class="btn" onclick="editExpense(${i})">✎</button><button class="btn danger" onclick="removeExpense(${i})">×</button></div>`).join('')||'<div class="empty">Nenhum gasto cadastrado.</div>';
+ incomeList.innerHTML=income.map((x,i)=>`<div class="item"><span class="itemtext"><b>${esc(x.name)}</b><span class="meta">R$ ${Number(x.amount||0).toFixed(2)} ${x.note?'· '+esc(x.note):''}</span></span><button class="btn danger" onclick="removeIncome(${i})">×</button></div>`).join('')||'<div class="empty">Nenhuma arrecadação cadastrada.</div>';
+ const invited=guests.length, sent=guests.filter(x=>x.invite).length, confirmed=guests.filter(x=>x.confirmed).length, paidGuests=guests.filter(x=>x.paid).length;
+ guestStats.innerHTML=[['👥',invited,'convidados'],['✉️',sent,'convites enviados'],['✅',confirmed,'confirmados'],['💳',paidGuests,'pagaram']].map(x=>`<div class="card stat"><div>${x[0]}</div><div class="num">${x[1]}</div><div class="label">${x[2]}</div></div>`).join('');
+ guestTable.innerHTML=guests.map((x,i)=>`<tr><td><b>${esc(x.name)}</b></td><td><input type="checkbox" ${x.invite?'checked':''} onchange="updateGuest(${i},'invite',this.checked)"></td><td><input type="checkbox" ${x.confirmed?'checked':''} onchange="updateGuest(${i},'confirmed',this.checked)"></td><td><input type="checkbox" ${x.paid?'checked':''} onchange="updateGuest(${i},'paid',this.checked)"></td><td>R$ ${Number(x.amount||0).toFixed(2)}</td><td>${esc(x.note||'')}</td><td><button class="btn danger" onclick="removeGuest(${i})">×</button></td></tr>`).join('')||'<tr><td colspan="7"><div class="empty">Adicione os convidados abaixo.</div></td></tr>';
+ scheduleList.innerHTML=data.schedule.map((x,i)=>`<label class="item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="toggle(data.schedule,${i})"><span class="itemtext">${esc(x.name)}<span class="meta">${esc(x.when)}</span></span><button class="btn" onclick="event.preventDefault();editGeneric('schedule',${i})">✎</button></label>`).join('');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===document.querySelector('.page.active')?.id));
+}
+function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');render()}
+function addGeneric(e,key){e.preventDefault();const f=new FormData(e.target);data[key].push({name:f.get('name'),qty:f.get('qty'),status:f.get('status'),done:false});save();e.target.reset();render()}
+function addDrink(e){e.preventDefault();const f=new FormData(e.target);data.drinks.push({name:f.get('name'),ingredients:f.get('ingredients'),yield:f.get('yield'),done:false});save();e.target.reset();render()}
+function addShopping(e){e.preventDefault();const f=new FormData(e.target);data.shopping.push({name:f.get('name'),category:f.get('category'),qty:f.get('qty'),price:f.get('price'),done:false});save();e.target.reset();render()}
+function addDIY(e){e.preventDefault();const f=new FormData(e.target);data.diy.push({name:f.get('name'),materials:f.get('materials'),deadline:f.get('deadline'),done:false});save();e.target.reset();render()}
+function addGame(e){e.preventDefault();const f=new FormData(e.target);data.games.push({name:f.get('name'),materials:f.get('materials'),rules:f.get('rules'),done:false});save();e.target.reset();render()}
+function addExpense(e){e.preventDefault();const f=new FormData(e.target);data.budget=data.budget||{target:0,expenses:[],income:[]};data.budget.expenses.push({name:f.get('name'),category:f.get('category'),planned:Number(f.get('planned')||0),paid:Number(f.get('paid')||0),done:f.get('done')==='on'});save();e.target.reset();render()}
+function addIncome(e){e.preventDefault();const f=new FormData(e.target);data.budget=data.budget||{target:0,expenses:[],income:[]};data.budget.income.push({name:f.get('name'),amount:Number(f.get('amount')||0),note:f.get('note')||''});save();e.target.reset();render()}
+function removeExpense(i){data.budget.expenses.splice(i,1);save();render()}
+function removeIncome(i){data.budget.income.splice(i,1);save();render()}
+function editExpense(i){const x=data.budget.expenses[i];const name=prompt('Nome do gasto:',x.name);if(name===null)return;const paid=prompt('Valor pago (R$):',x.paid);if(paid===null)return;const planned=prompt('Valor previsto (R$):',x.planned);if(planned===null)return;x.name=name;x.paid=Number(paid)||0;x.planned=Number(planned)||0;save();render()}
+function addGuest(e){e.preventDefault();const f=new FormData(e.target);data.guests=data.guests||[];data.guests.push({name:f.get('name'),invite:false,confirmed:false,paid:false,amount:Number(f.get('amount')||0),note:f.get('note')||''});save();e.target.reset();render()}
+function updateGuest(i,key,val){data.guests[i][key]=val;if(key==='paid'&&val){data.budget=data.budget||{target:0,expenses:[],income:[]};const g=data.guests[i];if(!data.budget.income.some(x=>x.guestIndex===i)){data.budget.income.push({name:g.name,amount:Number(g.amount||0),note:'Pagamento do convidado',guestIndex:i})}}save();render()}
+function removeGuest(i){data.guests.splice(i,1);if(data.budget?.income)data.budget.income=data.budget.income.filter(x=>x.guestIndex!==i);save();render()}
+function resetAll(){if(confirm('Restaurar o planner ao modelo inicial? Suas alterações serão apagadas.')){localStorage.removeItem(KEY);data=JSON.parse(JSON.stringify(seed));save();render()}}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='planner-halloween-backup.json';a.click();URL.revokeObjectURL(a.href)}
+render();
+initFirebase();
+</script>
+</body>
+</html>
