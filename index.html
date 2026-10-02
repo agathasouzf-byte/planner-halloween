@@ -228,7 +228,7 @@ function save(){
   saveLocalOnly();
   scheduleRemoteSave();
 }
-async function startCollaboration(){
+async async function startCollaboration(){
   setSyncStatus('● Conectando ao Firebase...');
   try{
     await signInAnonymously(firebaseAuth);
@@ -462,7 +462,8 @@ function exportBackup(){const b=new Blob([JSON.stringify(data,null,2)],{type:'ap
 function resetModel(){if(confirm('Restaurar o modelo inicial? Isso apagará suas alterações locais.')){localStorage.removeItem(KEY);data=clone(initial);save();render()}}
 
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
-navRender();render(); startCollaboration();
+Object.assign(window,{show,openEditor,closeModal,removeEntity,removeAreaItem,toggleAreaItem,toggleSimple,toggleGuest,setBought,exportBackup,resetModel,addCostRow});
+navRender();render();startCollaboration();
 </script>
 </body>
 </html>
