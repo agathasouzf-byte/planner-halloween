@@ -256,7 +256,7 @@ async function startCollaboration(){
   }catch(error){
     console.error('Firebase: falha na autenticação',error);
     remoteReady=false;
-    setSyncStatus('● Offline — ative o domínio no Firebase Authentication');
+    setSyncStatus('● Offline — erro Firebase: '+String(error?.code||error?.message||'desconhecido'));
   }
 }
 const arrMap={area:'areas',food:'foods',drink:'drinks',bar:'bar',extra:'extraPurchases',guest:'guests',diy:'diy',game:'games',schedule:'schedule',day:'day'};
