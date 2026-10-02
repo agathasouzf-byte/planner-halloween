@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planner — Festa</title>
+<style>
+:root{--bg:#0c0b10;--panel:#15131b;--panel2:#1d1923;--text:#f5f1f7;--muted:#aaa2b2;--line:#302a39;--accent:#ff7a18;--ok:#62d5a0;--danger:#ff6868;--warn:#f3c969}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#28192f 0,#0c0b10 45%);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{display:flex;min-height:100vh}.side{width:248px;background:rgba(8,7,11,.92);border-right:1px solid var(--line);padding:22px 15px;position:sticky;top:0;height:100vh}.logo{padding:5px 10px 22px}.logo small{color:var(--muted);display:block}.logo strong{font-size:20px}.sync{font-size:12px;color:var(--muted);padding:8px 10px 14px}.nav button{width:100%;border:0;background:transparent;color:var(--muted);padding:11px 12px;border-radius:12px;text-align:left;margin:2px 0}.nav button:hover,.nav button.active{background:var(--panel2);color:#fff}
+.main{flex:1;max-width:1360px;margin:auto;padding:34px 38px 60px}.page{display:none}.page.active{display:block}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:26px}.kicker{color:var(--accent);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase}.h1{font-size:40px;line-height:1.05;margin:4px 0 8px}.sub{color:var(--muted)}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:12px;padding:10px 14px}.btn.primary{background:var(--accent);border-color:var(--accent);color:#17110d;font-weight:800}.btn.danger{color:#ff9b9b}.btn.small{padding:7px 9px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:rgba(21,19,27,.9);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 12px 35px #0004}.stat .emoji{font-size:18px}.stat .num{font-size:28px;font-weight:800;margin-top:7px}.stat .label{color:var(--muted)}.bar{height:7px;background:#2b2632;border-radius:99px;overflow:hidden;margin-top:12px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#ffb45f)}
+.section{margin-top:24px}.section h2{font-size:20px;margin:0 0 13px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.item{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.item.done{opacity:.56}.item.done .txt{text-decoration:line-through}.item input[type=checkbox]{margin-top:4px;accent-color:var(--accent)}.txt{flex:1}.meta{display:block;color:var(--muted);font-size:12px;margin-top:2px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:13px}
+.entity{position:relative}.completed-area{border-color:var(--ok)}.completed-area h3{color:var(--ok)}.entity h3{margin:7px 0 5px;font-size:18px}.entity p{margin:5px 0;color:var(--muted)}.entity-actions{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}.tag{display:inline-block;padding:4px 8px;border-radius:99px;background:#2a2234;color:#ddd2eb;font-size:11px;font-weight:700}.money{font-weight:800}.positive{color:var(--ok)}.negative{color:var(--danger)}.warn{color:var(--warn)}
+.costbox{margin-top:12px;padding:11px;border:1px solid var(--line);border-radius:12px;background:#100e15}.costline{display:flex;justify-content:space-between;gap:12px;font-size:13px}.costline+.costline{margin-top:5px}.ingredient-list{margin:8px 0 0;padding:0;list-style:none}.ingredient-list li{padding:7px 0;border-bottom:1px dashed #342e3c}.ingredient-list li:last-child{border-bottom:0}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.modal.open{display:flex}.modalbox{width:min(760px,100%);max-height:92vh;overflow:auto;background:#18151e;border:1px solid #3b3345;border-radius:18px;padding:22px;box-shadow:0 30px 80px #0009}.modalbox h2{margin:0 0 15px}.form{display:grid;gap:11px}.form label{font-size:12px;color:var(--muted)}.form input,.form textarea,.form select{width:100%;background:#0f0e14;color:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.form textarea{min-height:80px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.checkrow{display:flex;gap:16px;flex-wrap:wrap}.checkrow label{color:#ddd}.checkrow input{accent-color:var(--accent)}
+.rowhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.subcard{border:1px solid var(--line);border-radius:12px;padding:12px;background:#121017}.line-grid{display:grid;grid-template-columns:1.4fr .8fr .7fr .7fr auto;gap:7px;align-items:end;margin-bottom:8px}.line-grid input{min-width:0}.mutedbox{color:var(--muted);font-size:12px;padding:7px 0}.moneydash{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.moneybox{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:15px}.moneybox .label{color:var(--muted);font-size:12px}.moneybox .value{font-size:24px;font-weight:800;margin-top:4px}
+.source-chip{display:inline-block;padding:3px 7px;background:#24202b;border-radius:7px;font-size:11px;color:#d3c9db}.small-actions{display:flex;gap:5px;flex-wrap:wrap}
+@media(max-width:1000px){.side{width:210px}.grid{grid-template-columns:repeat(2,1fr)}.cards,.two,.three,.moneydash{grid-template-columns:1fr}.main{padding:25px 20px}}@media(max-width:650px){.app{display:block}.side{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--line)}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;width:auto}.grid{grid-template-columns:1fr}.top{display:block}.actions{margin-top:15px}.line-grid{grid-template-columns:1fr 1fr}.line-grid .wide{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="logo"><small>PLANNER</small><strong>🎃 <span id="sideTitle">Festa</span></strong></div>
+  <div class="sync">● Local — sincronização será conectada depois</div>
+  <nav class="nav" id="nav"></nav>
+</aside>
+<main class="main">
+
+<section id="dashboard" class="page active">
+  <div class="top">
+    <div>
+      <div class="kicker" id="headKicker">ORGANIZAÇÃO DA FESTA</div>
+      <div class="h1" id="headTitle">Halloween</div>
+      <div class="sub" id="headDesc">Um painel para acompanhar tudo sem precisar abrir uma planilha.</div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="resetModel()">Restaurar modelo</button>
+      <button class="btn" onclick="openEditor('header')">✎ Editar festa</button>
+      <button class="btn primary" onclick="exportBackup()">Exportar backup</button>
+    </div>
+  </div>
+  <div class="grid" id="stats"></div>
+  <div class="section"><h2>Atividades do dia do evento</h2><div class="card"><div id="dayList"></div><button class="btn primary small" onclick="openEditor('day')">+ Adicionar atividade</button></div></div>
+  <div class="section"><h2>Visão rápida</h2><div class="cards" id="quickCards"></div></div>
+</section>
+
+<section id="decoracao" class="page">
+  <div class="top"><div><div class="kicker">visual da festa</div><div class="h1">Decoração</div><div class="sub">Cada item pode ter quantidade, valor estimado, valor gasto e status.</div></div><button class="btn primary" onclick="openEditor('area')">+ Nova área</button></div>
+  <div class="cards" id="areas"></div>
+</section>
+
+<section id="comidas" class="page">
+  <div class="top"><div><div class="kicker">menu</div><div class="h1">Comidas</div><div class="sub">Cada ingrediente tem quantidade e custo próprio; o total do prato é automático.</div></div><button class="btn primary" onclick="openEditor('food')">+ Nova comida</button></div>
+  <div class="cards" id="foods"></div>
+</section>
+
+<section id="bebidas" class="page">
+  <div class="top"><div><div class="kicker">bar</div><div class="h1">Bebidas & Drinks</div><div class="sub">Cada ingrediente e cada item do bar alimenta o orçamento separadamente.</div></div><div class="actions"><button class="btn" onclick="openEditor('bar')">+ Item do bar</button><button class="btn primary" onclick="openEditor('drink')">+ Novo drink</button></div></div>
+  <h2>Drinks</h2><div class="cards" id="drinks"></div>
+  <div class="section"><h2>Bar</h2><div class="card" id="barItems"></div></div>
+</section>
+
+<section id="compras" class="page">
+  <div class="top"><div><div class="kicker">consolidado</div><div class="h1">Compras</div><div class="sub">Tudo o que tem custo, reunido em um só lugar. Os dados vêm das outras abas.</div></div><button class="btn" onclick="openEditor('extra')">+ Compra avulsa</button></div>
+  <div class="card" id="shopping"></div>
+</section>
+
+<section id="convidados" class="page">
+  <div class="top"><div><div class="kicker">lista de presença</div><div class="h1">Convidados</div><div class="sub">Convites, confirmação e pagamentos — a arrecadação entra automaticamente no orçamento.</div></div><button class="btn primary" onclick="openEditor('guest')">+ Novo convidado</button></div>
+  <div class="grid" id="guestStats"></div><div class="section card" id="guests"></div>
+</section>
+
+<section id="orcamento" class="page">
+  <div class="top"><div><div class="kicker">dashboard financeiro</div><div class="h1">Orçamento</div><div class="sub">Consolidado automático de todas as categorias + arrecadação dos convidados.</div></div></div>
+  <div class="moneydash" id="moneyDash"></div>
+  <div class="section two"><div class="card"><h2>Gastos por categoria</h2><div id="expenseTable"></div></div><div class="card"><h2>Arrecadação</h2><div id="incomeTable"></div></div></div>
+</section>
+
+<section id="diy" class="page">
+  <div class="top"><div><div class="kicker">feito à mão</div><div class="h1">DIY</div><div class="sub">Materiais com custo individual, prazo, responsável e status.</div></div><button class="btn primary" onclick="openEditor('diy')">+ Novo projeto</button></div>
+  <div class="cards" id="diys"></div>
+</section>
+
+<section id="jogos" class="page">
+  <div class="top"><div><div class="kicker">entretenimento</div><div class="h1">Jogos & Atividades</div><div class="sub">Materiais, custos, responsáveis e preparação.</div></div><button class="btn primary" onclick="openEditor('game')">+ Novo jogo</button></div>
+  <div class="cards" id="games"></div>
+</section>
+
+<section id="cronograma" class="page">
+  <div class="top"><div><div class="kicker">linha do tempo</div><div class="h1">Cronograma</div><div class="sub">Tarefas, datas, horários, responsáveis e observações.</div></div><button class="btn primary" onclick="openEditor('schedule')">+ Nova tarefa</button></div>
+  <div class="card" id="schedule"></div>
+</section>
+
+</main></div>
+
+<div class="modal" id="modal"><div class="modalbox"><h2 id="modalTitle"></h2><form id="modalForm" class="form"></form></div></div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCG1IIT7c9N0kywP4p10c2-SuJRFaDR0",
+  authDomain: "halloween-f4c6a.firebaseapp.com",
+  projectId: "halloween-f4c6a",
+  storageBucket: "halloween-f4c6a.firebasestorage.app",
+  messagingSenderId: "817986672125",
+  appId: "1:817986672125:web:37c492c0a08d965123b594"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const firebaseAuth = getAuth(firebaseApp);
+const firestoreDb = getFirestore(firebaseApp);
+const plannerRef = doc(firestoreDb, "planners", "halloween-2026");
+let remoteReady = false;
+let syncTimer = null;
+let unsubscribePlanner = null;
+
+const KEY='plannerHalloweenV9';
+const OLD_KEYS=['plannerHalloweenV6','plannerHalloweenV4','plannerHalloweenV3','plannerHalloweenV2'];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const clone=x=>JSON.parse(JSON.stringify(x));
+
+const initial={
+ settings:{kicker:'ORGANIZAÇÃO DA FESTA',title:'Halloween',desc:'Um painel para acompanhar tudo sem precisar abrir uma planilha.'},
+ areas:[
+  {id:uid(),title:'Área 1 — Entrada / Cinema',desc:'Festival de terror / chegada dos convidados',items:[
+    {id:uid(),name:'Painel ou parede de cartazes de filmes',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Lambe-lambe / pôsteres',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Placa de entrada',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Iluminação temática',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Adereços para fotos',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''}
+  ]},
+  {id:uid(),title:'Área 2 — Salão principal',desc:'Cenário principal da festa',items:[
+    {id:uid(),name:'Elemento central da decoração',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Mesa de comidas',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Elementos pretos/laranja/vermelhos',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Velas ou iluminação cenográfica',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Detalhes inspirados em filmes de terror',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''}
+  ]},
+  {id:uid(),title:'Área 3 — Bar / Jogos',desc:'Cantinho dos drinks e atividades',items:[
+    {id:uid(),name:'Decoração do bar',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Cardápio dos drinks',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Copos e acessórios',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Mesa/área dos jogos',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''},
+    {id:uid(),name:'Adereços para os convidados',done:false,qty:'',estimated:0,spent:0,bought:false,notes:''}
+  ]}
+ ],
+ foods:[
+  {id:uid(),name:'Entradas e petiscos',desc:'',qty:'Definir',status:'Pendente',done:false,ingredients:[]},
+  {id:uid(),name:'Comida principal',desc:'',qty:'Definir',status:'Pendente',done:false,ingredients:[]},
+  {id:uid(),name:'Doces / sobremesas temáticas',desc:'',qty:'Definir',status:'Pendente',done:false,ingredients:[]}
+ ],
+ drinks:[
+  {id:uid(),name:'Drink 1 — definir',desc:'',yield:'',notes:'',ingredients:[]},
+  {id:uid(),name:'Drink 2 — definir',desc:'',yield:'',notes:'',ingredients:[]},
+  {id:uid(),name:'Drink 3 — definir',desc:'',yield:'',notes:'',ingredients:[]}
+ ],
+ bar:[
+  {id:uid(),name:'Gelo',notes:'',qty:'',estimated:0,spent:0,bought:false},
+  {id:uid(),name:'Água',notes:'',qty:'',estimated:0,spent:0,bought:false},
+  {id:uid(),name:'Bebidas sem álcool',notes:'',qty:'',estimated:0,spent:0,bought:false},
+  {id:uid(),name:'Copos',notes:'',qty:'',estimated:0,spent:0,bought:false},
+  {id:uid(),name:'Guardanapos',notes:'',qty:'',estimated:0,spent:0,bought:false}
+ ],
+ extraPurchases:[],
+ guests:[],
+ diy:[{id:uid(),name:'Parede de cartazes / lambe-lambe',desc:'',materials:[],deadline:'',responsible:'',status:'Pendente',notes:''}],
+ games:[{id:uid(),name:'Jogo 1 — definir',desc:'',materials:[],rules:'',responsible:'',status:'Pendente',notes:''}],
+ schedule:[
+  {id:uid(),name:'Definir layout final das 3 áreas',when:'3–4 semanas antes',date:'',time:'',responsible:'',status:'Pendente',notes:''},
+  {id:uid(),name:'Fechar cardápio e quantidades',when:'2–3 semanas antes',date:'',time:'',responsible:'',status:'Pendente',notes:''},
+  {id:uid(),name:'Compra principal de mercado e bar',when:'2–3 dias antes',date:'',time:'',responsible:'',status:'Pendente',notes:''}
+ ],
+ day:[]
+};
+
+function migrate(raw){
+  const d=raw||clone(initial);
+  d.settings??=clone(initial.settings); d.areas??=[]; d.foods??=[]; d.drinks??=[]; d.bar??=[]; d.guests??=[]; d.diy??=[]; d.games??=[]; d.schedule??=[]; d.day??=[]; d.extraPurchases??=[];
+  d.areas.forEach(a=>{
+    a.items=(a.items||[]).map(it=>typeof it==='string'?{id:uid(),name:it,done:false,qty:'',estimated:0,spent:0,bought:false,notes:''}:{id:it.id||uid(),name:it.name||'',done:!!it.done,qty:it.qty||'',estimated:Number(it.estimated||0),spent:Number(it.spent||0),bought:!!it.bought,notes:it.notes||''});
+  });
+  d.foods=d.foods.map(f=>{f.ingredients=Array.isArray(f.ingredients)?f.ingredients:parseLegacyIngredients(f.ingredients);return {...f,id:f.id||uid(),ingredients:(f.ingredients||[]).map(normalizeCostLine),qty:f.qty||'',status:f.status||'Pendente'}});
+  d.drinks=d.drinks.map(f=>{f.ingredients=Array.isArray(f.ingredients)?f.ingredients:parseLegacyIngredients(f.ingredients);return {...f,id:f.id||uid(),ingredients:(f.ingredients||[]).map(normalizeCostLine)}});
+  d.bar=d.bar.map(x=>({...x,id:x.id||uid(),qty:x.qty||'',estimated:Number(x.estimated||0),spent:Number(x.spent||0),bought:!!x.bought}));
+  d.extraPurchases=d.extraPurchases.map(x=>({...x,id:x.id||uid(),estimated:Number(x.estimated||0),spent:Number(x.spent||0),bought:!!x.bought}));
+  d.diy=d.diy.map(x=>({...x,id:x.id||uid(),materials:(Array.isArray(x.materials)?x.materials:parseLegacyIngredients(x.materials)).map(normalizeCostLine)}));
+  d.games=d.games.map(x=>({...x,id:x.id||uid(),materials:(Array.isArray(x.materials)?x.materials:parseLegacyIngredients(x.materials)).map(normalizeCostLine)}));
+  return d;
+}
+function normalizeCostLine(x){if(typeof x==='string')return {id:uid(),name:x,qty:'',unit:'',estimated:0,spent:0,bought:false};return {id:x.id||uid(),name:x.name||'',qty:x.qty||'',unit:x.unit||'',estimated:Number(x.estimated||0),spent:Number(x.spent||0),bought:!!x.bought};}
+function parseLegacyIngredients(s){if(!s)return [];return String(s).split(/,|\\n/).map(t=>t.trim()).filter(Boolean).map(name=>({id:uid(),name,qty:'',unit:'',estimated:0,spent:0,bought:false}))}
+
+let data;
+const stored=localStorage.getItem(KEY);
+if(stored){data=migrate(JSON.parse(stored))}
+else{
+  let legacy=null; for(const k of OLD_KEYS){const v=localStorage.getItem(k);if(v){try{legacy=JSON.parse(v);break}catch{}}}
+  data=migrate(legacy);
+}
+const saveLocalOnly=()=>localStorage.setItem(KEY,JSON.stringify(data));
+function setSyncStatus(label){
+  const el=document.querySelector('.sync');
+  if(el) el.textContent=label;
+}
+function scheduleRemoteSave(){
+  if(!remoteReady) return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(async()=>{
+    try{
+      await setDoc(plannerRef, clone(data));
+      setSyncStatus('● Compartilhado — salvo na nuvem');
+    }catch(err){
+      console.error('Firebase: erro ao salvar',err);
+      setSyncStatus('● Erro ao salvar — verifique o Firebase');
+    }
+  },180);
+}
+function save(){
+  saveLocalOnly();
+  scheduleRemoteSave();
+}
+async function startCollaboration(){
+  setSyncStatus('● Conectando ao Firebase...');
+  try{
+    await signInAnonymously(firebaseAuth);
+    unsubscribePlanner=onSnapshot(plannerRef, async(snapshot)=>{
+      if(snapshot.exists()){
+        const remote=snapshot.data();
+        data=migrate(remote);
+        saveLocalOnly();
+        remoteReady=true;
+        render();
+        setSyncStatus('● Compartilhado — sincronizando em tempo real');
+      }else{
+        remoteReady=true;
+        await setDoc(plannerRef, clone(data));
+        saveLocalOnly();
+        render();
+        setSyncStatus('● Compartilhado — banco criado');
+      }
+    },(error)=>{
+      console.error('Firebase: erro de sincronização',error);
+      remoteReady=false;
+      setSyncStatus('● Offline — não foi possível conectar ao Firebase');
+    });
+  }catch(error){
+    console.error('Firebase: falha na autenticação',error);
+    remoteReady=false;
+    setSyncStatus('● Offline — ative o domínio no Firebase Authentication');
+  }
+}
+const arrMap={area:'areas',food:'foods',drink:'drinks',bar:'bar',extra:'extraPurchases',guest:'guests',diy:'diy',game:'games',schedule:'schedule',day:'day'};
+
+function sumLines(lines,key){return (lines||[]).reduce((s,x)=>s+Number(x[key]||0),0)}
+function totals(){
+  const decoration=data.areas.flatMap(a=>a.items||[]).reduce((r,x)=>{r.e+=Number(x.estimated||0);r.s+=Number(x.spent||0);return r},{e:0,s:0});
+  const food=data.foods.reduce((r,x)=>{r.e+=sumLines(x.ingredients,'estimated');r.s+=sumLines(x.ingredients,'spent');return r},{e:0,s:0});
+  const drinks=data.drinks.reduce((r,x)=>{r.e+=sumLines(x.ingredients,'estimated');r.s+=sumLines(x.ingredients,'spent');return r},{e:0,s:0});
+  const bar=data.bar.reduce((r,x)=>{r.e+=Number(x.estimated||0);r.s+=Number(x.spent||0);return r},{e:0,s:0});
+  const diy=data.diy.reduce((r,x)=>{r.e+=sumLines(x.materials,'estimated');r.s+=sumLines(x.materials,'spent');return r},{e:0,s:0});
+  const games=data.games.reduce((r,x)=>{r.e+=sumLines(x.materials,'estimated');r.s+=sumLines(x.materials,'spent');return r},{e:0,s:0});
+  const extra=data.extraPurchases.reduce((r,x)=>{r.e+=Number(x.estimated||0);r.s+=Number(x.spent||0);return r},{e:0,s:0});
+  const paid=data.guests.filter(x=>x.paid).reduce((s,x)=>s+Number(x.value||0),0);
+  const due=data.guests.filter(x=>x.confirmed).reduce((s,x)=>s+Number(x.value||0),0);
+  return {decoration,food,drink:{e:drinks.e+bar.e,s:drinks.s+bar.s},diy,games,extra,paid,due};
+}
+function costLinesForCollection(){
+  const rows=[];
+  data.areas.forEach(a=>(a.items||[]).forEach(x=>rows.push({id:x.id,name:x.name,source:'Decoração',sourceId:a.id,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'areaItem'})));
+  data.foods.forEach(f=>(f.ingredients||[]).forEach(x=>rows.push({id:x.id,name:x.name,source:`Comidas · ${f.name}`,sourceId:f.id,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'foodIngredient'})));
+  data.drinks.forEach(d=>(d.ingredients||[]).forEach(x=>rows.push({id:x.id,name:x.name,source:`Bebidas · ${d.name}`,sourceId:d.id,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'drinkIngredient'})));
+  data.bar.forEach(x=>rows.push({id:x.id,name:x.name,source:'Bar',sourceId:null,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'bar'}));
+  data.diy.forEach(d=>(d.materials||[]).forEach(x=>rows.push({id:x.id,name:x.name,source:`DIY · ${d.name}`,sourceId:d.id,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'diyMaterial'})));
+  data.games.forEach(g=>(g.materials||[]).forEach(x=>rows.push({id:x.id,name:x.name,source:`Jogos · ${g.name}`,sourceId:g.id,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'gameMaterial'})));
+  data.extraPurchases.forEach(x=>rows.push({id:x.id,name:x.name,source:'Compra avulsa',sourceId:null,estimated:x.estimated,spent:x.spent,bought:x.bought,kind:'extra'}));
+  return rows;
+}
+
+function navRender(){
+  nav.innerHTML=[
+    ['dashboard','Visão geral'],['decoracao','🎃 Decoração'],['comidas','🍴 Comidas'],['bebidas','🍸 Bebidas & Drinks'],
+    ['compras','🛍️ Compras'],['convidados','👥 Convidados'],['orcamento','💰 Orçamento'],
+    ['diy','✂️ DIY'],['jogos','🎲 Jogos & Atividades'],['cronograma','📅 Cronograma']
+  ].map(x=>`<button data-p="${x[0]}" onclick="show('${x[0]}')">${x[1]}</button>`).join('');
+}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()}
+
+function editDeleteBtns(type,id){
+  const safeId=String(id||'');
+  return `<div class="small-actions">
+    <button type="button" class="btn small" onclick="event.stopPropagation();openEditor('${type}','${safeId}')">✎ Editar</button>
+    <button type="button" class="btn small danger" onclick="event.stopPropagation();removeEntity('${type}','${safeId}')">🗑 Excluir</button>
+  </div>`;
+}
+function render(){
+  headKicker.textContent=data.settings.kicker;headTitle.textContent=data.settings.title;headDesc.textContent=data.settings.desc;sideTitle.textContent=data.settings.title;
+  const t=totals();
+  const taskObjects=[...data.areas.flatMap(a=>a.items||[]),...data.foods,...data.drinks,...data.diy,...data.games,...data.schedule,...data.day];
+  const completed=taskObjects.filter(x=>x.done||x.status==='Concluído').length,pct=taskObjects.length?Math.round(completed/taskObjects.length*100):0;
+  stats.innerHTML=[
+    ['📋',taskObjects.length,'tarefas/itens'],['✅',completed,'concluídos'],['👥',data.guests.filter(x=>x.confirmed).length,'confirmados'],['💰',money(t.paid),'arrecadado']
+  ].map(x=>`<div class="card stat"><div class="emoji">${x[0]}</div><div class="num">${x[1]}</div><div class="label">${x[2]}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`).join('');
+
+  dayList.innerHTML=data.day.length?data.day.map(x=>`<div class="item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="toggleSimple('day','${x.id}')"><span class="txt">${esc(x.name)}<span class="meta">${esc(x.responsible||'')}${x.notes?' · '+esc(x.notes):''}</span></span>${editDeleteBtns('day',x.id)}</div>`).join(''):'<div class="empty">Nenhuma atividade cadastrada.</div>';
+  quickCards.innerHTML=`<div class="card"><span class="tag">GASTO</span><h3>${money(allSpent(t))}</h3><p>gasto efetivo em todas as categorias</p><button class="btn small" onclick="show('orcamento')">Ver orçamento</button></div>
+  <div class="card"><span class="tag">CONFIRMAÇÕES</span><h3>${data.guests.filter(x=>x.confirmed).length}</h3><p>${data.guests.length} convidados cadastrados · ${data.guests.filter(x=>x.invite).length} convites enviados</p><button class="btn small" onclick="show('convidados')">Ver convidados</button></div>
+  <div class="card"><span class="tag">SALDO</span><h3 class="${t.paid-allSpent(t)>=0?'positive':'negative'}">${money(t.paid-allSpent(t))}</h3><p>arrecadado menos gasto efetivo</p></div>`;
+
+  areas.innerHTML=data.areas.length?data.areas.map(a=>{
+    const items=a.items||[],done=items.filter(x=>x.done).length,complete=items.length>0&&done===items.length;
+    const ae=sumLines(items,'estimated'),as=sumLines(items,'spent');
+    return `<div class="card entity ${complete?'completed-area':''}"><span class="tag">${complete?'CONCLUÍDA':'ÁREA'}</span><h3>${esc(a.title)}</h3><p>${esc(a.desc)}</p>
+    <div class="meta">${done}/${items.length} itens concluídos</div><div class="bar"><i style="width:${items.length?done/items.length*100:0}%"></i></div>
+    <div class="section">${items.length?items.map(x=>`<div class="item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="toggleAreaItem('${a.id}','${x.id}')"><span class="txt">${esc(x.name)}<span class="meta">${x.bought?'Comprado':''}</span></span><span>${money(x.spent)}${x.estimated?` / ${money(x.estimated)} est.`:''}</span><button class="btn small" onclick="openEditor('areaItem','${a.id}|${x.id}')">✎</button><button type="button" class="btn small danger" onclick="event.stopPropagation();removeAreaItem('${a.id}','${x.id}')">🗑</button></div>`).join(''):'<div class="empty">Nenhum item.</div>'}</div>
+    <div class="costbox"><div class="costline"><span>Estimado</span><b>${money(ae)}</b></div><div class="costline"><span>Gasto</span><b>${money(as)}</b></div></div>
+    <div class="entity-actions"><button class="btn small" onclick="openEditor('area','${a.id}')">✎ Editar área</button><button class="btn small" onclick="openEditor('areaItem','${a.id}|new')">+ Item</button><button type="button" class="btn small danger" onclick="event.stopPropagation();removeEntity('area','${a.id}')">🗑 Excluir área</button></div></div>`;
+  }).join(''):'<div class="empty">Nenhuma área cadastrada.</div>';
+
+  foods.innerHTML=data.foods.length?data.foods.map(f=>{
+    const fe=sumLines(f.ingredients,'estimated'),fs=sumLines(f.ingredients,'spent');
+    return `<div class="card entity"><span class="tag">${esc(f.status)}</span><h3>${esc(f.name)}</h3>${f.desc?`<p>${esc(f.desc)}</p>`:''}<p><b>Quantidade:</b> ${esc(f.qty||'—')}</p>
+    <ul class="ingredient-list">${(f.ingredients||[]).length?f.ingredients.map(i=>`<li><b>${esc(i.name)}</b> · ${esc(i.qty)} ${esc(i.unit)} · ${money(i.spent)} <span class="meta">Estimado: ${money(i.estimated)} ${i.bought?'· Comprado':''}</span></li>`).join(''):'<li class="meta">Nenhum ingrediente cadastrado.</li>'}</ul>
+    <div class="costbox"><div class="costline"><span>Custo estimado</span><b>${money(fe)}</b></div><div class="costline"><span>Custo gasto</span><b>${money(fs)}</b></div></div>
+    <div class="entity-actions">${editDeleteBtns('food',f.id)}</div></div>`;
+  }).join(''):'<div class="empty">Nenhuma comida cadastrada.</div>';
+
+  drinks.innerHTML=data.drinks.length?data.drinks.map(d=>{
+    const de=sumLines(d.ingredients,'estimated'),ds=sumLines(d.ingredients,'spent');
+    return `<div class="card entity"><span class="tag">DRINK</span><h3>${esc(d.name)}</h3>${d.desc?`<p>${esc(d.desc)}</p>`:''}<p><b>Rendimento:</b> ${esc(d.yield||'A definir')}</p>
+    <ul class="ingredient-list">${(d.ingredients||[]).length?d.ingredients.map(i=>`<li><b>${esc(i.name)}</b> · ${esc(i.qty)} ${esc(i.unit)} · ${money(i.spent)} <span class="meta">Estimado: ${money(i.estimated)} ${i.bought?'· Comprado':''}</span></li>`).join(''):'<li class="meta">Nenhum ingrediente cadastrado.</li>'}</ul>
+    <div class="costbox"><div class="costline"><span>Custo estimado</span><b>${money(de)}</b></div><div class="costline"><span>Custo gasto</span><b>${money(ds)}</b></div></div>
+    ${d.notes?`<p>${esc(d.notes)}</p>`:''}<div class="entity-actions">${editDeleteBtns('drink',d.id)}</div></div>`;
+  }).join(''):'<div class="empty">Nenhum drink cadastrado.</div>';
+
+  barItems.innerHTML=data.bar.length?data.bar.map(x=>`<div class="item"><span class="txt"><b>${esc(x.name)}</b><span class="meta">${esc(x.qty||'')}${x.notes?' · '+esc(x.notes):''}</span></span><span>${money(x.spent)} <span class="meta">est. ${money(x.estimated)}</span></span>${editDeleteBtns('bar',x.id)}</div>`).join(''):'<div class="empty">Nenhum item no bar.</div>';
+
+  const purchases=costLinesForCollection();
+  shopping.innerHTML=purchases.length?`<table><thead><tr><th>Item</th><th>Origem</th><th>Qtd.</th><th>Estimado</th><th>Gasto</th><th>Comprado</th></tr></thead><tbody>${purchases.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td><span class="source-chip">${esc(x.source)}</span></td><td>${esc(lineQty(x))}</td><td>${money(x.estimated)}</td><td>${money(x.spent)}</td><td><input type="checkbox" ${x.bought?'checked':''} onchange="setBought('${x.kind}','${x.sourceId||''}','${x.id}')"></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Nenhuma compra/custo cadastrado ainda.</div>';
+
+  const inv=data.guests.length,sent=data.guests.filter(x=>x.invite).length,conf=data.guests.filter(x=>x.confirmed).length,paidN=data.guests.filter(x=>x.paid).length;
+  guestStats.innerHTML=[['👥',inv,'convidados'],['✉️',sent,'convites enviados'],['✅',conf,'confirmados'],['💳',paidN,'pagamentos recebidos']].map(x=>`<div class="card stat"><div class="emoji">${x[0]}</div><div class="num">${x[1]}</div><div class="label">${x[2]}</div></div>`).join('');
+  guests.innerHTML=data.guests.length?`<table><thead><tr><th>Nome</th><th>Descrição</th><th>Convite</th><th>Presença</th><th>Pagamento</th><th>Valor</th><th></th></tr></thead><tbody>${data.guests.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.desc)}</td><td><input type="checkbox" ${x.invite?'checked':''} onchange="toggleGuest('${x.id}','invite')"></td><td><input type="checkbox" ${x.confirmed?'checked':''} onchange="toggleGuest('${x.id}','confirmed')"></td><td><input type="checkbox" ${x.paid?'checked':''} onchange="toggleGuest('${x.id}','paid')"></td><td>${money(x.value)}</td><td>${editDeleteBtns('guest',x.id)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Nenhum convidado cadastrado.</div>';
+
+  const cats={Decoração:t.decoration,Comidas:t.food,Bebidas:t.drink,DIY:t.diy,Jogos:t.games,'Compras avulsas':t.extra};
+  const spend=allSpent(t),estimate=allEstimated(t);
+  moneyDash.innerHTML=[['Arrecadado',money(t.paid),''],['Gasto efetivo',money(spend),''],['Estimativa total',money(estimate),''],['Saldo atual',money(t.paid-spend),t.paid-spend>=0?'positive':'negative']].map(x=>`<div class="moneybox"><div class="label">${x[0]}</div><div class="value ${x[2]}">${x[1]}</div></div>`).join('');
+  expenseTable.innerHTML=`<table><thead><tr><th>Categoria</th><th>Estimado</th><th>Gasto</th></tr></thead><tbody>${Object.entries(cats).map(([c,v])=>`<tr><td>${c}</td><td>${money(v.e)}</td><td>${money(v.s)}</td></tr>`).join('')}</tbody></table><div class="mutedbox">Os valores são calculados diretamente dos itens e ingredientes cadastrados nas outras abas.</div>`;
+  incomeTable.innerHTML=`<table><tr><th>Convidados cadastrados</th><td>${inv}</td></tr><tr><th>Confirmados</th><td>${conf}</td></tr><tr><th>Pagamentos recebidos</th><td>${paidN}</td></tr><tr><th>Arrecadação prevista dos confirmados</th><td>${money(t.due)}</td></tr><tr><th>Total arrecadado</th><td><b>${money(t.paid)}</b></td></tr></table>`;
+
+  diys.innerHTML=data.diy.length?data.diy.map(d=>{const e=sumLines(d.materials,'estimated'),s=sumLines(d.materials,'spent');return `<div class="card entity"><span class="tag">${esc(d.status)}</span><h3>${esc(d.name)}</h3><p>${esc(d.desc||'')}</p><p><b>Prazo:</b> ${esc(d.deadline||'A definir')} · <b>Responsável:</b> ${esc(d.responsible||'A definir')}</p><ul class="ingredient-list">${(d.materials||[]).length?d.materials.map(m=>`<li><b>${esc(m.name)}</b> · ${esc(m.qty)} ${esc(m.unit)} · ${money(m.spent)} <span class="meta">Est.: ${money(m.estimated)} ${m.bought?'· Comprado':''}</span></li>`).join(''):'<li class="meta">Nenhum material cadastrado.</li>'}</ul><div class="costbox"><div class="costline"><span>Estimado</span><b>${money(e)}</b></div><div class="costline"><span>Gasto</span><b>${money(s)}</b></div></div>${d.notes?`<p>${esc(d.notes)}</p>`:''}<div class="entity-actions">${editDeleteBtns('diy',d.id)}</div></div>`}).join(''):'<div class="empty">Nenhum projeto cadastrado.</div>';
+
+  games.innerHTML=data.games.length?data.games.map(g=>{const e=sumLines(g.materials,'estimated'),s=sumLines(g.materials,'spent');return `<div class="card entity"><span class="tag">${esc(g.status)}</span><h3>${esc(g.name)}</h3><p>${esc(g.desc||'')}</p><p><b>Como funciona:</b> ${esc(g.rules||'A definir')}</p><p><b>Responsável:</b> ${esc(g.responsible||'A definir')}</p><ul class="ingredient-list">${(g.materials||[]).length?g.materials.map(m=>`<li><b>${esc(m.name)}</b> · ${esc(m.qty)} ${esc(m.unit)} · ${money(m.spent)} <span class="meta">Est.: ${money(m.estimated)} ${m.bought?'· Comprado':''}</span></li>`).join(''):'<li class="meta">Nenhum material cadastrado.</li>'}</ul><div class="costbox"><div class="costline"><span>Estimado</span><b>${money(e)}</b></div><div class="costline"><span>Gasto</span><b>${money(s)}</b></div></div>${g.notes?`<p>${esc(g.notes)}</p>`:''}<div class="entity-actions">${editDeleteBtns('game',g.id)}</div></div>`}).join(''):'<div class="empty">Nenhum jogo cadastrado.</div>';
+
+  schedule.innerHTML=data.schedule.length?`<table><thead><tr><th>Tarefa</th><th>Quando</th><th>Data</th><th>Horário</th><th>Responsável</th><th>Status</th><th></th></tr></thead><tbody>${data.schedule.map(x=>`<tr><td><b>${esc(x.name)}</b><small class="meta">${esc(x.notes||'')}</small></td><td>${esc(x.when)}</td><td>${esc(x.date)}</td><td>${esc(x.time)}</td><td>${esc(x.responsible)}</td><td>${esc(x.status)}</td><td>${editDeleteBtns('schedule',x.id)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Nenhuma tarefa cadastrada.</div>';
+}
+function lineQty(x){if(x.kind==='foodIngredient'){const f=data.foods.find(f=>f.id===x.sourceId);const i=f?.ingredients.find(i=>i.id===x.id);return i?`${i.qty||''} ${i.unit||''}`:''}if(x.kind==='drinkIngredient'){const f=data.drinks.find(f=>f.id===x.sourceId);const i=f?.ingredients.find(i=>i.id===x.id);return i?`${i.qty||''} ${i.unit||''}`:''}if(x.kind==='diyMaterial'){const f=data.diy.find(f=>f.id===x.sourceId);const i=f?.materials.find(i=>i.id===x.id);return i?`${i.qty||''} ${i.unit||''}`:''}if(x.kind==='gameMaterial'){const f=data.games.find(f=>f.id===x.sourceId);const i=f?.materials.find(i=>i.id===x.id);return i?`${i.qty||''} ${i.unit||''}`:''}const srcMap={areaItem:()=>{const a=data.areas.find(a=>a.id===x.sourceId);const i=a?.items.find(i=>i.id===x.id);return i?.qty||''},bar:()=>data.bar.find(i=>i.id===x.id)?.qty||'',extra:()=>data.extraPurchases.find(i=>i.id===x.id)?.qty||''};return srcMap[x.kind]?srcMap[x.kind]():''
+}
+function allSpent(t){return Object.values(t).filter(v=>v&&typeof v==='object'&&'s'in v).reduce((s,v)=>s+Number(v.s||0),0)}
+function allEstimated(t){return Object.values(t).filter(v=>v&&typeof v==='object'&&'e'in v).reduce((s,v)=>s+Number(v.e||0),0)}
+
+function field(label,name,val='',type='text',extra=''){return `<label>${label}<input name="${name}" type="${type}" value="${esc(val)}" ${extra}></label>`}
+function costRowsHtml(list,title='Ingredientes'){
+  const rows=(list&&list.length?list:[{id:uid(),name:'',qty:'',unit:'',estimated:0,spent:0,bought:false}]);
+  return `<div class="subcard"><div class="rowhead"><b>${title}</b><button type="button" class="btn small" onclick="addCostRow(this)">+ Adicionar</button></div><div id="costRows">${rows.map(r=>costRow(r)).join('')}</div></div>`;
+}
+function costRow(r){return `<div class="line-grid cost-row"><input name="line_name" value="${esc(r.name)}" placeholder="Nome"><input name="line_qty" value="${esc(r.qty)}" placeholder="Qtd."><input name="line_unit" value="${esc(r.unit)}" placeholder="Unid."><input name="line_est" type="number" step="0.01" min="0" value="${Number(r.estimated||0)}" placeholder="Estimado"><input name="line_spent" type="number" step="0.01" min="0" value="${Number(r.spent||0)}" placeholder="Gasto"><button type="button" class="btn small danger" onclick="this.closest('.cost-row').remove()">🗑</button></div>`}
+function collectCostRows(form,oldLines=[]){
+  const ns=[...form.querySelectorAll('.cost-row')],result=[];
+  ns.forEach((row,idx)=>{const ins=row.querySelectorAll('input');const name=ins[0].value.trim();if(!name)return;const old=oldLines[idx];result.push({id:old?.id||uid(),name,qty:ins[1].value.trim(),unit:ins[2].value.trim(),estimated:Number(ins[3].value||0),spent:Number(ins[4].value||0),bought:!!old?.bought})});
+  return result;
+}
+function addCostRow(btn){btn.closest('.subcard').querySelector('#costRows').insertAdjacentHTML('beforeend',costRow({id:uid(),name:'',qty:'',unit:'',estimated:0,spent:0,bought:false}))}
+
+function editorFields(type,x){
+  if(type==='header')return `${field('Texto superior','kicker',data.settings.kicker)}${field('Título','title',data.settings.title)}<label>Descrição<textarea name="desc">${esc(data.settings.desc)}</textarea></label>`;
+  if(type==='area')return `${field('Título da área','title',x.title)}<label>Descrição / conceito<textarea name="desc">${esc(x.desc)}</textarea></label><div class="mutedbox">Os itens da área são gerenciados individualmente para você poder adicionar, editar, marcar e excluir sem perder os custos.</div>`;
+  if(type==='areaItem'){const [aid,iid]=String(x._ctx||'').split('|');const item=x;return `${field('Item','name',item.name)}${field('Quantidade','qty',item.qty)}${field('Valor estimado (R$)','estimated',item.estimated,'number','step="0.01" min="0"')}${field('Valor gasto (R$)','spent',item.spent,'number','step="0.01" min="0"')}<label><input type="checkbox" name="bought" ${item.bought?'checked':''}> Comprado</label><label>Observações<textarea name="notes">${esc(item.notes)}</textarea></label>`}
+  if(type==='food')return `${field('Nome','name',x.name)}${field('Descrição','desc',x.desc)}${field('Quantidade / rendimento','qty',x.qty)}<label>Status<select name="status">${['Pendente','Comprar pronto','Fazer em casa','Concluído'].map(v=>`<option ${x.status===v?'selected':''}>${v}</option>`).join('')}</select></label>${costRowsHtml(x.ingredients,'Ingredientes')}`;
+  if(type==='drink')return `${field('Nome','name',x.name)}${field('Descrição','desc',x.desc)}${field('Rendimento','yield',x.yield)}<label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>${costRowsHtml(x.ingredients,'Ingredientes')}`;
+  if(type==='bar')return `${field('Item','name',x.name)}${field('Quantidade','qty',x.qty)}${field('Valor estimado (R$)','estimated',x.estimated,'number','step="0.01" min="0"')}${field('Valor gasto (R$)','spent',x.spent,'number','step="0.01" min="0"')}<label><input type="checkbox" name="bought" ${x.bought?'checked':''}> Comprado</label><label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>`;
+  if(type==='extra')return `${field('Item','name',x.name)}${field('Categoria','category',x.category||'Outros')}${field('Quantidade','qty',x.qty)}${field('Valor estimado (R$)','estimated',x.estimated,'number','step="0.01" min="0"')}${field('Valor gasto (R$)','spent',x.spent,'number','step="0.01" min="0"')}<label><input type="checkbox" name="bought" ${x.bought?'checked':''}> Comprado</label><label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>`;
+  if(type==='guest')return `${field('Nome','name',x.name)}<label>Descrição / observação<textarea name="desc">${esc(x.desc)}</textarea></label>${field('Valor a pagar (R$)','value',x.value||0,'number','step="0.01" min="0"')}<div class="checkrow"><label><input type="checkbox" name="invite" ${x.invite?'checked':''}> Convite enviado</label><label><input type="checkbox" name="confirmed" ${x.confirmed?'checked':''}> Confirmou presença</label><label><input type="checkbox" name="paid" ${x.paid?'checked':''}> Já pagou</label></div>`;
+  if(type==='diy')return `${field('Nome','name',x.name)}<label>Descrição<textarea name="desc">${esc(x.desc)}</textarea></label>${field('Prazo','deadline',x.deadline)}${field('Responsável','responsible',x.responsible)}<label>Status<select name="status">${['Pendente','Em andamento','Concluído'].map(v=>`<option ${x.status===v?'selected':''}>${v}</option>`).join('')}</select></label><label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>${costRowsHtml(x.materials,'Materiais / custos')}`;
+  if(type==='game')return `${field('Nome','name',x.name)}<label>Descrição<textarea name="desc">${esc(x.desc)}</textarea></label><label>Como funciona<textarea name="rules">${esc(x.rules)}</textarea></label>${field('Responsável','responsible',x.responsible)}<label>Status<select name="status">${['Pendente','Em andamento','Concluído'].map(v=>`<option ${x.status===v?'selected':''}>${v}</option>`).join('')}</select></label><label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>${costRowsHtml(x.materials,'Materiais / custos')}`;
+  if(type==='schedule')return `${field('Tarefa','name',x.name)}${field('Quando','when',x.when)}${field('Data','date',x.date,'date')}${field('Horário','time',x.time,'time')}${field('Responsável','responsible',x.responsible)}<label>Status<select name="status">${['Pendente','Em andamento','Concluído'].map(v=>`<option ${x.status===v?'selected':''}>${v}</option>`).join('')}</select></label><label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>`;
+  if(type==='day')return `${field('Atividade','name',x.name)}${field('Responsável','responsible',x.responsible)}<label>Observações<textarea name="notes">${esc(x.notes)}</textarea></label>`;
+  return '';
+}
+
+function openEditor(type,id){
+  const titleMap={header:'festa',area:'área',areaItem:'item da decoração',food:'comida',drink:'drink',bar:'item do bar',extra:'compra avulsa',guest:'convidado',diy:'projeto DIY',game:'jogo',schedule:'tarefa',day:'atividade'};
+  let x={},ctx={};
+  if(id && type==='areaItem'){
+    const [aid,iid]=String(id).split('|');ctx={aid};const a=data.areas.find(a=>a.id===aid);x=a?.items.find(i=>i.id===iid)||{id:uid(),name:'',qty:'',estimated:0,spent:0,bought:false,notes:''};x._ctx=id;
+  } else if(id){const a=arrMap[type];x=(data[a]||[]).find(z=>z.id===id)||{}}
+  modalTitle.textContent=(id?'Editar ':'Adicionar ')+titleMap[type];
+  modalForm.innerHTML=editorFields(type,x)+`<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary">Salvar</button></div>`;
+  modalForm.onsubmit=e=>{
+    e.preventDefault();const fd=new FormData(modalForm);
+    if(type==='header'){data.settings={kicker:String(fd.get('kicker')||''),title:String(fd.get('title')||''),desc:String(fd.get('desc')||'')}}
+    else if(type==='area'){
+      if(id){x.title=String(fd.get('title')||'');x.desc=String(fd.get('desc')||'')}else data.areas.push({id:uid(),title:String(fd.get('title')||'Nova área'),desc:String(fd.get('desc')||''),items:[]});
+    }else if(type==='areaItem'){
+      const [aid,iid]=String(x._ctx||'').split('|'),a=data.areas.find(a=>a.id===aid);
+      if(a){let item=a.items.find(i=>i.id===iid);if(!item){item={id:uid()};a.items.push(item)}item.name=String(fd.get('name')||'');item.qty=String(fd.get('qty')||'');item.estimated=Number(fd.get('estimated')||0);item.spent=Number(fd.get('spent')||0);item.bought=fd.has('bought');item.notes=String(fd.get('notes')||'')}
+    }else if(type==='food'||type==='drink'){
+      const key=arrMap[type],isDrink=type==='drink',oldLines=Array.isArray(x.ingredients)?x.ingredients:[];const obj=x.id?x:{id:uid(),ingredients:[]};
+      obj.name=String(fd.get('name')||'');obj.desc=String(fd.get('desc')||'');if(isDrink){obj.yield=String(fd.get('yield')||'');obj.notes=String(fd.get('notes')||'')}else{obj.qty=String(fd.get('qty')||'');obj.status=String(fd.get('status')||'Pendente')}
+      obj.ingredients=collectCostRows(modalForm,oldLines);if(!x.id)data[key].push(obj);
+    }else if(type==='bar'||type==='extra'){
+      const key=arrMap[type],obj=x.id?x:{id:uid()};obj.name=String(fd.get('name')||'');obj.qty=String(fd.get('qty')||'');obj.estimated=Number(fd.get('estimated')||0);obj.spent=Number(fd.get('spent')||0);obj.bought=fd.has('bought');obj.notes=String(fd.get('notes')||'');if(type==='extra')obj.category=String(fd.get('category')||'Outros');if(!x.id)data[key].push(obj);
+    }else if(type==='guest'){
+      const obj=x.id?x:{id:uid()};obj.name=String(fd.get('name')||'');obj.desc=String(fd.get('desc')||'');obj.value=Number(fd.get('value')||0);obj.invite=fd.has('invite');obj.confirmed=fd.has('confirmed');obj.paid=fd.has('paid');if(!x.id)data.guests.push(obj);
+    }else if(type==='diy'||type==='game'){
+      const key=arrMap[type],obj=x.id?x:{id:uid()};obj.name=String(fd.get('name')||'');obj.desc=String(fd.get('desc')||'');obj.responsible=String(fd.get('responsible')||'');obj.status=String(fd.get('status')||'Pendente');obj.notes=String(fd.get('notes')||'');if(type==='game')obj.rules=String(fd.get('rules')||'');else obj.deadline=String(fd.get('deadline')||'');obj.materials=collectCostRows(modalForm,Array.isArray(x.materials)?x.materials:[]);if(!x.id)data[key].push(obj);
+    }else if(type==='schedule'||type==='day'){
+      const key=arrMap[type],obj=x.id?x:{id:uid()};obj.name=String(fd.get('name')||'');obj.responsible=String(fd.get('responsible')||'');obj.notes=String(fd.get('notes')||'');if(type==='schedule'){obj.when=String(fd.get('when')||'');obj.date=String(fd.get('date')||'');obj.time=String(fd.get('time')||'');obj.status=String(fd.get('status')||'Pendente')}if(!x.id)data[key].push(obj);
+    }
+    save();closeModal();render();
+  };
+  modal.classList.add('open');
+}
+function closeModal(){modal.classList.remove('open')}
+function removeEntity(type,id){
+  const key=arrMap[type];
+  if(!key || !Array.isArray(data[key])) return;
+  data[key]=data[key].filter(x=>x.id!==id);
+  save();
+  render();
+}
+function removeAreaItem(aid,iid){
+  const a=data.areas.find(a=>a.id===aid);
+  if(!a) return;
+  a.items=a.items.filter(x=>x.id!==iid);
+  save();
+  render();
+}
+function toggleAreaItem(aid,iid){const a=data.areas.find(a=>a.id===aid),x=a?.items.find(x=>x.id===iid);if(x){x.done=!x.done;save();render()}}
+function toggleSimple(type,id){const a=data[arrMap[type]],x=a?.find(x=>x.id===id);if(x){x.done=!x.done;save();render()}}
+function toggleGuest(id,key){const x=data.guests.find(x=>x.id===id);if(x){x[key]=!x[key];save();render()}}
+function setBought(kind,sourceId,itemId){
+  let x=null;
+  if(kind==='areaItem'){const a=data.areas.find(a=>a.id===sourceId);x=a?.items.find(i=>i.id===itemId)}
+  if(kind==='foodIngredient'){x=data.foods.find(f=>f.id===sourceId)?.ingredients.find(i=>i.id===itemId)}
+  if(kind==='drinkIngredient'){x=data.drinks.find(f=>f.id===sourceId)?.ingredients.find(i=>i.id===itemId)}
+  if(kind==='bar')x=data.bar.find(i=>i.id===itemId)
+  if(kind==='diyMaterial')x=data.diy.find(f=>f.id===sourceId)?.materials.find(i=>i.id===itemId)
+  if(kind==='gameMaterial')x=data.games.find(f=>f.id===sourceId)?.materials.find(i=>i.id===itemId)
+  if(kind==='extra')x=data.extraPurchases.find(i=>i.id===itemId)
+  if(x){x.bought=!x.bought;save();render()}
+}
+function exportBackup(){const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='planner-festa-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function resetModel(){if(confirm('Restaurar o modelo inicial? Isso apagará suas alterações locais.')){localStorage.removeItem(KEY);data=clone(initial);save();render()}}
+
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+navRender();render(); startCollaboration();
+</script>
+</body>
+</html>
